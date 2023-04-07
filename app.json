@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "tamz-projekt",
+    "slug": "tamz-projekt",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "tamz-projekt"
+}
