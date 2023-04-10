@@ -1,26 +1,20 @@
-import { Slot } from "expo-router";
-import { StyleSheet, StatusBar, View } from 'react-native';
-//import { store } from '../redux/store'
-//import { Provider } from 'react-redux'
+import { Stack } from "expo-router";
+import { store } from '../redux/store'
+import {
+  MD3LightTheme as DefaultTheme,
+  Provider as PaperProvider,
+} from 'react-native-paper';
+
+import { Provider as StoreProvider } from 'react-redux';
+
+const theme = {
+  ...DefaultTheme
+};
 
 export default function HomeLayout() {
-  return <View style={styles.container}>
-          <Slot />
-          <StatusBar style="auto" />
-        </View>;
+  return <StoreProvider store={store}>
+    <PaperProvider theme={theme}>
+      <Stack />
+    </PaperProvider>
+  </StoreProvider>;
 }
-
-/*  export default function HomeLayout() {
-    return <Provider store={store}>
-          <Slot />
-      </Provider>;
-  }*/
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#eee',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});  
