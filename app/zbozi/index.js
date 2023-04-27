@@ -1,13 +1,18 @@
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Link } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import MapView from 'react-native-maps';
+import { StyleSheet, View } from 'react-native';
+import { useTheme, Text, MD3Colors } from 'react-native-paper';
+import { useSelector, useDispatch } from 'react-redux'
 
 export default function Pobocky() {
 
   const [hasPermission, setHasPermission] = useState(null);
-  const [scannedCode, setScannedCode] = useState("");
+  const [selectedGoods, setSelectedGoods] = useState({});
+
+  const goodsList = useSelector((state) => state.goods.list);
+
+  const theme = useTheme();
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -18,13 +23,19 @@ export default function Pobocky() {
   }, []);
 
     const handleBarCodeScanned = ({ type, data }) => {
-      setScannedCode(data);
+      let selected = goodsList.filter(gl => gl.code == data);
+      if(selected) {
+        setSelectedGoods(selected[0]);
+      }
+      
     };
 
     return <View>
-            <Text>Naskenujte kód zboží</Text>
+            <Text variant='headlineSmall' style={{paddingVertical: 5}}>Naskenujte kód zboží</Text>
             <BarCodeScanner onBarCodeScanned={handleBarCodeScanned} style={styles.scan} />
-            <Text>Naskenovaný kód: {scannedCode}</Text>
+
+            <Text>Naskenovaný kód: {selectedGoods.code}</Text>
+            <Text>Název zboží: {selectedGoods.name}</Text>
         </View>;
 }
 
