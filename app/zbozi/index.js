@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTheme, Text, MD3Colors } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux'
 
-export default function Pobocky() {
+export default function Zbozi() {
 
   const [hasPermission, setHasPermission] = useState(null);
   const [selectedGoods, setSelectedGoods] = useState({});

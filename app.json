@@ -6,7 +6,15 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "scheme": "app"
+    "scheme": "app",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Povolit $(PRODUCT_NAME) aby využil Vaši polohu."
+        }
+      ]
+    ]
   },
   "name": "tamz-projekt"
 }

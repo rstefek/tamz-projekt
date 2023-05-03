@@ -14,5 +14,8 @@ export default function Index() {
             <Link href="/zbozi" asChild>
                 <Button mode="outlined" style={{marginVertical: 10}}>Zboží</Button>
             </Link>
+            <Link href="/kontakt" asChild>
+                <Button mode="outlined" style={{marginVertical: 10}}>Kontaktujte nás</Button>
+            </Link>
         </View>;
 }

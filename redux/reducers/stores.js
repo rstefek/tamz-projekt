@@ -1,34 +1,35 @@
 import { createSlice } from '@reduxjs/toolkit'
+import api from '../../helpers/api';
 
 const initialState = {
-  list: [{latlng: {latitude: 49.8271047, longitude: 18.2458972}, title: "Ostrava", description: "Duhová 5"}],
+  list: [],
+  loadingState: 0,
 }
 
 export const storesSlice = createSlice({
   name: 'stores',
   initialState,
   reducers: {
-    addToList: (state, action) => {
-        state.list.push(action.payload);
+    populate: (state, action) => {
+        action.payload && action.payload.map((store) => state.list.push(store));
+        state.loading = 0;
     },
-    /*
-    increment: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-      state.value += 1
-    },
-    decrement: (state) => {
-      state.value -= 1
-    },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload
-    },*/
+    loading: (state, stat) => {
+      state.loading = stat;
+    },    
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { addToList } = storesSlice.actions
+export const { populate, loading } = storesSlice.actions
+
+// Define a thunk that dispatches those action creators
+export const populateStores = () => async (dispatch) => {
+  dispatch(loading(1))
+  console.log("Loading...");
+  const response = await api().get('stores.json');
+  console.log(response);
+  dispatch(populate(response.data))
+}
 
 export default storesSlice.reducer
