@@ -2,7 +2,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme, Text, MD3Colors, Divider } from 'react-native-paper';
+import { useTheme, Text, MD3Colors, Divider, Badge } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux'
 import { populateGoods } from '../../redux/reducers/goods';
 
@@ -40,12 +40,12 @@ export default function Zbozi() {
     };
 
     return <View style={{ backgroundColor: theme.colors.background }}>
-            <Stack.Screen options={{ title: "Skenování zboží" }} />
+            <Stack.Screen options={{ title: "Skenování zboží" , headerBackTitle: "Zpět"}}/>
             <Text variant='headlineSmall' style={{padding: 5}}>Naskenujte kód zboží</Text>
             <Divider />
             <View style={styles.dataRow}>
             <Text>Počet položek v DB</Text>
-            <Text variant='titleMedium'>{goodsList.length}</Text>
+            <Badge size={25}>{goodsList.length}</Badge>
             </View>
             
             {hasPermission ?

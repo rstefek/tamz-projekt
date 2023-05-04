@@ -8,6 +8,7 @@ import * as Linking from "expo-linking"
 import { useEffect, useState } from 'react';
 import { getDistanceBetweenPoints } from '../../helpers/location';
 import { populateStores } from '../../redux/reducers/stores';
+import { ScrollView } from 'react-native';
 
 export default function Pobocky() {
 
@@ -42,7 +43,8 @@ export default function Pobocky() {
       })();
     }, []);
 
-    return <Provider theme={theme}><View style={{ backgroundColor: theme.colors.background }}>
+    return <Provider theme={theme}>
+            <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
             <Stack.Screen options={{ title: "Naše pobočky" }} />
             <Text variant='headlineSmall' style={{padding: 5}}>Mapa naší pobočkové sítě:</Text>
             <MapView 
@@ -69,7 +71,12 @@ export default function Pobocky() {
                   pinColor='red'
                 />}
               </MapView>
+              {(!location || !location.coords) && <View style={{justifyContent: "center", alignItems:"center", flexDirection: "row", height: 60}}>
+                <ActivityIndicator size='small' animating={true} color={MD3Colors.red800} />
+                <Text variant='titleSmall' style={{marginStart: 10}}>Čekám na polohu...</Text>
+              </View>}
               <Divider />
+              <ScrollView>
               <List.Section>
                 <List.Subheader>Pobočky {location && location.coords ? "dle vzdálenosti":""}</List.Subheader>
                 {storeList.map((marker, index) => {
@@ -77,11 +84,7 @@ export default function Pobocky() {
                   <List.Item onPress={() => showDialog(marker)} key={index} title={marker.title + (location && location.coords ? " (" + getDistanceBetweenPoints(marker.latlng.latitude, marker.latlng.longitude, location.coords.latitude, location.coords.longitude) + " km)" : "")} left={() => <List.Icon icon="warehouse" />} />
                 )})}                
               </List.Section>
-              <Divider />
-              {(!location || !location.coords) && <View style={{justifyContent: "center", alignItems:"center", flexDirection: "row", height: 60}}>
-                <ActivityIndicator size='small' animating={true} color={MD3Colors.red800} />
-                <Text variant='titleSmall' style={{marginStart: 10}}>Čekám na polohu...</Text>
-              </View>}
+              </ScrollView>
               <Portal>
                 <Dialog visible={visible} onDismiss={hideDialog}>
                   <Dialog.Title>{selectedStore.title}</Dialog.Title>

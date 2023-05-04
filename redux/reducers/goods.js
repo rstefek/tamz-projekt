@@ -15,8 +15,8 @@ export const goodsSlice = createSlice({
       action.payload && action.payload.map((store) => state.list.push(store));
       state.loadingState = 0;
     },
-    loading: (state, stat) => {
-      state.loadingState = stat;
+    loading: (state, action) => {
+      state.loadingState = action.payload;
     },
   },
 })
