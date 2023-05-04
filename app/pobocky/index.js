@@ -1,9 +1,10 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { useTheme, Text, List, Divider, Chip, MD3Colors, ActivityIndicator } from 'react-native-paper';
+import { useTheme, Text, List, Divider, MD3Colors, ActivityIndicator, Portal, Dialog, Button, Provider } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import * as Location from 'expo-location';
+import * as Linking from "expo-linking"
 import { useEffect, useState } from 'react';
 import { getDistanceBetweenPoints } from '../../helpers/location';
 import { populateStores } from '../../redux/reducers/stores';
@@ -16,7 +17,15 @@ export default function Pobocky() {
 
     const dispatch = useDispatch();
 
+    const [selectedStore, setSelectedStore] = useState({});
     const [location, setLocation] = useState(null);
+    const [visible, setVisible] = useState(false);
+
+    const showDialog = (storeData) => {
+      setSelectedStore(storeData);
+      setVisible(true);
+    }
+    const hideDialog = () => setVisible(false);
 
     useEffect(() => {
       (async () => {
@@ -24,17 +33,18 @@ export default function Pobocky() {
         if (status !== 'granted') {
           return;
         }
-        console.log("populate");
+        //načtení z API nebo ze storage
         dispatch(populateStores());
   
+        //požadavek na práva k pozici
         let location = await Location.getCurrentPositionAsync({});
         setLocation(location);
       })();
     }, []);
 
-    return <View style={{ backgroundColor: theme.colors.background }}>
+    return <Provider theme={theme}><View style={{ backgroundColor: theme.colors.background }}>
             <Stack.Screen options={{ title: "Naše pobočky" }} />
-            <Text variant='headlineSmall'>Mapa naší pobočkové sítě:</Text>
+            <Text variant='headlineSmall' style={{padding: 5}}>Mapa naší pobočkové sítě:</Text>
             <MapView 
               style={styles.map}  
               initialRegion={{
@@ -64,7 +74,7 @@ export default function Pobocky() {
                 <List.Subheader>Pobočky {location && location.coords ? "dle vzdálenosti":""}</List.Subheader>
                 {storeList.map((marker, index) => {
                   return (
-                  <List.Item key={index} title={marker.title + (location && location.coords ? " (" + getDistanceBetweenPoints(marker.latlng.latitude, marker.latlng.longitude, location.coords.latitude, location.coords.longitude) + " km)" : "")} left={() => <List.Icon icon="warehouse" />} />
+                  <List.Item onPress={() => showDialog(marker)} key={index} title={marker.title + (location && location.coords ? " (" + getDistanceBetweenPoints(marker.latlng.latitude, marker.latlng.longitude, location.coords.latitude, location.coords.longitude) + " km)" : "")} left={() => <List.Icon icon="warehouse" />} />
                 )})}                
               </List.Section>
               <Divider />
@@ -72,7 +82,19 @@ export default function Pobocky() {
                 <ActivityIndicator size='small' animating={true} color={MD3Colors.red800} />
                 <Text variant='titleSmall' style={{marginStart: 10}}>Čekám na polohu...</Text>
               </View>}
-        </View>;
+              <Portal>
+                <Dialog visible={visible} onDismiss={hideDialog}>
+                  <Dialog.Title>{selectedStore.title}</Dialog.Title>
+                  <Dialog.Content>
+                    <Text variant="bodyMedium">{selectedStore.description}</Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button icon="phone" onPress={() => Linking.openURL('tel:608733066')}>Zavolat na prodejnu</Button>
+                    <Button icon="cancel" onPress={hideDialog}>Zavřít</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal>
+        </View></Provider>;
 }
 
 const styles = StyleSheet.create({

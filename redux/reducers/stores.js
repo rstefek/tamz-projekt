@@ -11,11 +11,12 @@ export const storesSlice = createSlice({
   initialState,
   reducers: {
     populate: (state, action) => {
+        state.list = [];
         action.payload && action.payload.map((store) => state.list.push(store));
-        state.loading = 0;
+        state.loadingState = 0;
     },
     loading: (state, stat) => {
-      state.loading = stat;
+      state.loadingState = stat;
     },    
   },
 })
@@ -26,10 +27,12 @@ export const { populate, loading } = storesSlice.actions
 // Define a thunk that dispatches those action creators
 export const populateStores = () => async (dispatch) => {
   dispatch(loading(1))
-  console.log("Loading...");
-  const response = await api().get('stores.json');
-  console.log(response);
-  dispatch(populate(response.data))
+  const response = await api().get('stores.json').catch();
+  if(response.data) {
+    dispatch(populate(response.data))
+  } else {
+    dispatch(loading(2))
+  }
 }
 
 export default storesSlice.reducer
