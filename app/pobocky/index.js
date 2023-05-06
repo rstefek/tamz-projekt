@@ -7,7 +7,7 @@ import * as Location from 'expo-location';
 import * as Linking from "expo-linking"
 import { useEffect, useState } from 'react';
 import { getDistanceBetweenPoints } from '../../helpers/location';
-import { populateStores } from '../../redux/reducers/stores';
+import { populateStores, updateDistance } from '../../redux/reducers/stores';
 import { ScrollView } from 'react-native';
 
 export default function Pobocky() {
@@ -15,12 +15,23 @@ export default function Pobocky() {
     const theme = useTheme();
 
     const storeList = useSelector((state) => state.stores.list);
-
+    
+    const sortedList = storeList.map((store) => store).sort((a, b) => {
+      return (a.distance || 0) - (b.distance || 0);
+    });
+        
     const dispatch = useDispatch();
 
     const [selectedStore, setSelectedStore] = useState({});
     const [location, setLocation] = useState(null);
     const [visible, setVisible] = useState(false);
+
+    const updateLocation = (plocation) => {
+      if(plocation.coords) {
+        dispatch(updateDistance(plocation.coords))
+      }
+      setLocation(plocation);
+    }
 
     const showDialog = (storeData) => {
       setSelectedStore(storeData);
@@ -38,8 +49,8 @@ export default function Pobocky() {
         dispatch(populateStores());
   
         //požadavek na práva k pozici
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
+        let plocation = await Location.getCurrentPositionAsync({});
+        updateLocation(plocation);
       })();
     }, []);
 
@@ -79,17 +90,21 @@ export default function Pobocky() {
               <ScrollView>
               <List.Section>
                 <List.Subheader>Pobočky {location && location.coords ? "dle vzdálenosti":""}</List.Subheader>
-                {storeList.map((marker, index) => {
+                {sortedList.map((marker, index) => {
                   return (
-                  <List.Item onPress={() => showDialog(marker)} key={index} title={marker.title + (location && location.coords ? " (" + getDistanceBetweenPoints(marker.latlng.latitude, marker.latlng.longitude, location.coords.latitude, location.coords.longitude) + " km)" : "")} left={() => <List.Icon icon="warehouse" />} />
+                  <List.Item onPress={() => showDialog(marker)} key={index} title={marker.title + (marker.distance ? " (" + marker.distance + " km)" : "")} left={() => <List.Icon icon="warehouse" />} />
                 )})}                
               </List.Section>
               </ScrollView>
               <Portal>
                 <Dialog visible={visible} onDismiss={hideDialog}>
-                  <Dialog.Title>{selectedStore.title}</Dialog.Title>
+                  <Dialog.Title>Prodejna: {selectedStore.title}</Dialog.Title>
                   <Dialog.Content>
+                    <Text variant="titleMedium">Adresa:</Text>
                     <Text variant="bodyMedium">{selectedStore.description}</Text>
+                    <Text variant="bodyMedium">{selectedStore.title}</Text>
+                    <Text variant="titleMedium" style={{marginTop: 10}}>Otevírací doba:</Text>
+                    <Text variant="bodyMedium">{selectedStore.opening}</Text>
                   </Dialog.Content>
                   <Dialog.Actions>
                     <Button icon="phone" onPress={() => Linking.openURL('tel:608733066')}>Zavolat na prodejnu</Button>

@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import api from '../../helpers/api';
+import { getDistanceBetweenPoints } from '../../helpers/location';
 
 const initialState = {
   list: [],
@@ -15,6 +16,15 @@ export const storesSlice = createSlice({
         action.payload && action.payload.map((store) => state.list.push(store));
         state.loadingState = 0;
     },
+    updateDistance: (state, action) => {
+        //v datech máme aktuální lokaci, spouštíme a aktualizujeme vzdálenosti v seznamu
+        const distanceList = state.list.map((store) => {
+          store.distance = getDistanceBetweenPoints(store.latlng.latitude, store.latlng.longitude, action.payload.latitude, action.payload.longitude);
+          return store;
+        });
+        state.list = distanceList;
+        return state;
+    },
     loading: (state, action) => {
       state.loadingState = action.payload;
     },    
@@ -22,7 +32,7 @@ export const storesSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { populate, loading } = storesSlice.actions
+export const { populate, updateDistance, loading } = storesSlice.actions
 
 // Define a thunk that dispatches those action creators
 export const populateStores = () => async (dispatch) => {
