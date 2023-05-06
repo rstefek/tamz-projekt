@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { useTheme, Text, List, Divider, MD3Colors, ActivityIndicator, Portal, Dialog, Button, Provider } from 'react-native-paper';
+import MapView, { Marker, Callout } from 'react-native-maps';
+import { useTheme, Text, List, Divider, MD3Colors, ActivityIndicator, Portal, Dialog, Button, Provider, IconButton } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import * as Location from 'expo-location';
 import * as Linking from "expo-linking"
@@ -73,7 +73,20 @@ export default function Pobocky() {
                   title={marker.title}
                   description={marker.description}
                   pinColor='orange'
-                />
+                >
+                    <Callout>
+                      <View style={{flexDirection: "row", alignItems: "center"}}>
+                        <Text variant='titleMedium'>{marker.title}</Text>
+                        <IconButton
+                          icon="magnify"
+                          mode='outlined'
+                          iconColor={MD3Colors.error50}
+                          size={15}
+                          onPress={() => showDialog(marker)}
+                        />
+                      </View>
+                    </Callout>
+                </Marker>
               ))}
               {location && location.coords && <Marker
                   key={999}

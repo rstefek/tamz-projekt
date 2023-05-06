@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import api from '../../helpers/api';
+import { getData, storeData } from '../../helpers/storage';
 
 const initialState = {
   list: [],
@@ -26,10 +27,15 @@ export const { populate, loading } = goodsSlice.actions
 
 export const populateGoods = () => async (dispatch) => {
   dispatch(loading(1))
-  const response = await api().get('goods.json').catch();
+  const response = await api().get('goods.json').catch(() => {return {}});
   if(response.data) {
+    await storeData("goods", response.data); //odložíme data do storage na zařízení
     dispatch(populate(response.data))
   } else {
+    const localData = await getData("goods");
+    if(localData) {
+      dispatch(populate(localData))
+    }
     dispatch(loading(2))
   }
 }

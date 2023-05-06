@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import api from '../../helpers/api';
 import { getDistanceBetweenPoints } from '../../helpers/location';
+import { getData, storeData } from '../../helpers/storage';
 
 const initialState = {
   list: [],
@@ -37,10 +38,15 @@ export const { populate, updateDistance, loading } = storesSlice.actions
 // Define a thunk that dispatches those action creators
 export const populateStores = () => async (dispatch) => {
   dispatch(loading(1))
-  const response = await api().get('stores.json').catch();
+  const response = await api().get('storesx.json').catch(() => {return {}});
   if(response.data) {
+    await storeData("stores", response.data); //odložíme data do storage na zařízení
     dispatch(populate(response.data))
   } else {
+    const localData = await getData("stores");
+    if(localData) {
+      dispatch(populate(localData))
+    }
     dispatch(loading(2))
   }
 }
